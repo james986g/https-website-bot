@@ -13,48 +13,24 @@ rm -rf /tmp/xray
 install -d /usr/local/etc/xray
 cat << EOF > /usr/local/etc/xray/config.json
 {
-        "log": {
-                "loglevel": "warning"
+    "inbounds": [{
+        "port": ${PORT},
+        "protocol": "vless",
+        "settings": {
+            "clients": [{
+                "id": "${ID}"
+            }],
+            "decryption": "none"
         },
-        "inbound": {
-                "protocol": "VMess",
-                "port": 8080,
-                "settings": {
-                        "clients": [{
-                                "id": "73419d1a-cbd6-4b6f-db1d-38d78b3fb109",
-                                "alterId": 64,
-                                "security": "chacha20-poly1305"
-                        }]
-                },
-                "streamSettings": {
-                        "network": "tcp",
-                        "httpSettings": {
-                                "path": "/"
-                        },
-                        "tcpSettings": {
-                                "header": {
-                                        "type": "http",
-                                        "response": {
-                                                "version": "1.1",
-                                                "status": "200",
-                                                "reason": "OK",
-                                                "headers": {
-                                                        "Content-Type": ["application/octet-stream", "application/x-msdownload", "text/html", "application/x-shockwave-flash"],
-                                                        "Transfer-Encoding": ["chunked"],
-                                                        "Connection": ["keep-alive"],
-                                                        "Pragma": "no-cache"
-                                                }
-                                        }
-                                }
-                        }
-                }
-        },
-        "inboundDetour": [],
-        "outbound": {
-                "protocol": "freedom",
-                "settings": {}
+        "streamSettings": {
+            "network": "ws",
+            "wsSettings": {
+                "path": "${WSPATH}"
+            }
         }
+    }],
+    "outbounds": [{
+        "protocol": "freedom"
+    }]
 }
-
-# Run xray
-/usr/local/bin/xray -config /usr/local/etc/xray/config.json
+EOF
